@@ -40,11 +40,13 @@ namespace GestaoDeEquipamentos.ConsoleApp
                         break;
 
                     case "2":
+                        VisualizarListaEquipamentos(listaNomeEquipamentos, listaNumeroDeSerieEquipamentos, listaFabricanteEquipamentos);
                         EditarEquipamento(listaNomeEquipamentos, listaPrecoEquipamentos, listaNumeroDeSerieEquipamentos, listaDataDeFabricacaoEquipamentos, listaFabricanteEquipamentos);
                         break;
 
                     case "3":
-                        ExcluirEquipamento(ref listaNomeEquipamentos, ref listaPrecoEquipamentos, ref listaNumeroDeSerieEquipamentos, ref listaDataDeFabricacaoEquipamentos, ref listaFabricanteEquipamentos);
+                        VisualizarListaEquipamentos(listaNomeEquipamentos, listaNumeroDeSerieEquipamentos, listaFabricanteEquipamentos);
+                        ExcluirEquipamento(ref listaNomeEquipamentos, ref listaPrecoEquipamentos, ref listaNumeroDeSerieEquipamentos, ref listaDataDeFabricacaoEquipamentos, ref listaFabricanteEquipamentos, ref listaEquipamentosChamados);
                         break;
 
                     case "4":
@@ -87,10 +89,12 @@ namespace GestaoDeEquipamentos.ConsoleApp
                         break;
 
                     case "3":
+                        VisualizarListaChamados(listaTitulosChamados, listaEquipamentoDoChamado, listaDataAberturaChamados);
                         EditarListaChamados(listaTitulosChamados, listaDescricaoChamados, listaEquipamentoDoChamado, listaNomeEquipamentos, listaDataAberturaChamados);
                         break;
 
                     case "4":
+                        VisualizarListaChamados(listaTitulosChamados, listaEquipamentoDoChamado, listaDataAberturaChamados);
                         ExcluirListaChamados(listaTitulosChamados, listaDescricaoChamados, listaEquipamentoDoChamado, listaDataAberturaChamados);
                         break;
 
@@ -165,6 +169,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
             BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
             while (equipamentoEncontrado == false)
             {
+                Console.WriteLine();
                 Console.WriteLine("Nenhum equipamento com este nome foi encontrado.");
                 BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
             }
@@ -179,6 +184,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 {
                     var quantidadeDiasChamadoAberto = (DateTime.Now.Date - listaDataAberturaChamados[i].Value.Date).TotalDays;
 
+                    Console.WriteLine();
                     Console.WriteLine($"Chamado: {listaTitulosChamados[i]} - Equipamento: {listaEquipamentoDoChamado[i]} - Data de Abertura do Chamado: {listaDataAberturaChamados[i]} - Dias Chamado em Aberto: {quantidadeDiasChamadoAberto}");
                     Console.WriteLine();
                 }
@@ -187,11 +193,13 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static int CriarChamado(string[] listaTitulosChamados, string[] listaDescricaoChamados, string[] listaEquipamentoDoChamado, string[] listaNomeEquipamentos, DateTime?[] listaDataAberturaChamados, int indiceDoChamado)
         {
+            Console.WriteLine();
             Console.Write("Digite o título do Chamado:");
             string tituloDoChamado = Console.ReadLine();
             listaTitulosChamados[indiceDoChamado] = tituloDoChamado;
             Console.WriteLine();
 
+            Console.WriteLine();
             Console.Write("Digite a descrição do Chamado:");
             listaDescricaoChamados[indiceDoChamado] = Console.ReadLine();
             Console.WriteLine();
@@ -200,11 +208,13 @@ namespace GestaoDeEquipamentos.ConsoleApp
             BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
             while (equipamentoEncontrado == false)
             {
+                Console.WriteLine();
                 Console.WriteLine("Nenhum equipamento com este nome foi encontrado.");
                 BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
             }
             Console.WriteLine();
 
+            Console.WriteLine();
             Console.Write("Digite a data de abertura do Chamado (formato: --/--/----):");
             listaDataAberturaChamados[indiceDoChamado] = Convert.ToDateTime(Console.ReadLine());
             Console.WriteLine();
@@ -217,6 +227,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void BuscarEValidarNomeEquipamento(string[] listaEquipamentoDoChamado, string[] listaNomeEquipamentos, out bool equipamentoEncontrado, int indiceDoChamado)
         {
+            Console.WriteLine();
             Console.Write("Digite o nome do Equipamento que será atribuído ao chamado:");
             string nomeEquipamentoChamado = Console.ReadLine();
             equipamentoEncontrado = false;
@@ -234,6 +245,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void EditarPropriedadeChamado(string[] listaPropriedadeChamado, int indiceDoChamado, string nomePropriedade)
         {
+            Console.WriteLine();
             Console.WriteLine($"Digite o novo {nomePropriedade} do Chamado");
             string novaPropriedadeChamado = Console.ReadLine();
 
@@ -253,14 +265,20 @@ namespace GestaoDeEquipamentos.ConsoleApp
             return null;
         }
 
-        static void ExcluirEquipamento(ref string[] listaNomeDeEquipamentos, ref decimal?[] listaPrecoDeEquipamentos, ref string[] listaNumeroDeSerieDeEquipamentos, ref DateTime?[] listaDataDeFabricacaoDeEquipamentos, ref string[] listaFabricanteDeEquipamentos)
+        static void ExcluirEquipamento(ref string[] listaNomeDeEquipamentos, ref decimal?[] listaPrecoDeEquipamentos, ref string[] listaNumeroDeSerieDeEquipamentos, ref DateTime?[] listaDataDeFabricacaoDeEquipamentos, ref string[] listaFabricanteDeEquipamentos, ref string[] listaEquipamentosChamados)
         {
+            Console.WriteLine();
             Console.WriteLine("Digite o nome do equipamento que será excluído: ");
             string equipamentoParaExcluir = Console.ReadLine();
 
             for (int i = 0; i < listaNomeDeEquipamentos.Length; i++)
             {
-                if (listaNomeDeEquipamentos[i] == equipamentoParaExcluir)
+                if (equipamentoParaExcluir == listaEquipamentosChamados[i])
+                {
+                    Console.WriteLine("Este equipamento não pode ser excluído, pois possui um chamado aberto.");
+                }
+
+                else if (listaNomeDeEquipamentos[i] == equipamentoParaExcluir)
                 {
                     listaNomeDeEquipamentos[i] = null;
                     listaPrecoDeEquipamentos[i] = null;
@@ -277,6 +295,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
             {
                 if (listaNomeDoEquipamento[i] != null)
                 {
+                    Console.WriteLine();
                     Console.WriteLine($"Equipamento: {listaNomeDoEquipamento[i]} - Número de Série: {listaNumeroDeSerieDeEquipamentos[i]} - Fabricante: {listaFabricanteDeEquipamentos[i]}");
                     Console.WriteLine();
                 }
@@ -285,6 +304,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void EditarEquipamento(string[] listaNomeDoEquipamento, decimal?[] listaPrecoDoEquipamento, string[] listaNumeroDeSerieDoEquipamento, DateTime?[] listaDataDeFabricacaoDoEquipamento, string[] listaFabricanteDoEquipamento)
         {
+            Console.WriteLine();
             Console.Write("Digite o nome do equipamento que sera editado: ");
             string equipamentoAhSerAlterado = Console.ReadLine();
 
@@ -332,6 +352,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void EditarDataDeFabricacaoDoEquipamento(DateTime?[] listaDataDeFabricacaoDoEquipamento, int indiceDoEquipamento)
         {
+            Console.WriteLine();
             Console.WriteLine("Digite a nova data de fabricação do Equipamento");
             DateTime novaDataDeFabricacao = Convert.ToDateTime(Console.ReadLine());
 
@@ -340,6 +361,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void EditarPrecoEquipamento(decimal?[] listaPrecoDoEquipamento, int indiceDoEquipamento)
         {
+            Console.WriteLine();
             Console.WriteLine("Digite o novo preço do Equipamento");
             decimal novoPrecoDoEquipamento = Convert.ToDecimal(Console.ReadLine());
 
@@ -348,6 +370,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void EditarPropriedadeEquipamento(string[] listaPropriedadeEquipamento, int indiceDoEquipamento, string nomePropriedade)
         {
+            Console.WriteLine();
             Console.WriteLine($"Digite o novo {nomePropriedade} do Equipamento");
             string novaPropriedadeEquipamento = Console.ReadLine();
 
@@ -367,7 +390,99 @@ namespace GestaoDeEquipamentos.ConsoleApp
             return null;
         }
 
-        static int CriarEquipamento(string[] listaNomeDoEquipamento, decimal?[] precoDoEquipamento, string[] numeroDeSerie, DateTime?[] dataDeFabricacao, string[] fabricante, int indiceDoEquipamento)
+        static int CriarEquipamento(string[] listaNomeDoEquipamento, decimal?[] listaPrecoDoEquipamento, string[] listaNumeroDeSerie, DateTime?[] listaDataDeFabricacao, string[] listaFabricante, int indiceDoEquipamento)
+        {
+            VerificaEPreencheNomeEquipamento(listaNomeDoEquipamento, indiceDoEquipamento);
+            Console.WriteLine();
+
+            VerificaEPreenchePrecoEquipamento(listaPrecoDoEquipamento, indiceDoEquipamento);
+            Console.WriteLine();
+
+            VerificaEPreencheNumeroDeSerieEquipamento(listaNumeroDeSerie, indiceDoEquipamento);
+            Console.WriteLine();
+
+            VerificaEPreencheDataDeFabricacaoEquipamento(listaDataDeFabricacao, indiceDoEquipamento);
+            Console.WriteLine();
+
+            VerificaEPreencheFabricanteEquipamento(listaFabricante, indiceDoEquipamento);
+            Console.WriteLine();
+
+            indiceDoEquipamento++;
+            Console.WriteLine($"Equipamento {indiceDoEquipamento} Registrado");
+            Console.Clear();
+
+            return indiceDoEquipamento;
+        }
+
+        static void VerificaEPreencheFabricanteEquipamento(string[] listaFabricante, int indiceDoEquipamento)
+        {
+            Console.Write("Digite o nome do fabricante do Equipamento:");
+            string fabricanteDigitado = Console.ReadLine();
+            while (fabricanteDigitado == "")
+            {
+                Console.WriteLine("O fabricante do Equipamento é obrigatório.");
+                Console.Write("Digite o nome do fabricante do Equipamento:");
+                fabricanteDigitado = Console.ReadLine();
+            }
+            listaFabricante[indiceDoEquipamento] = fabricanteDigitado;
+        }
+
+        static void VerificaEPreencheDataDeFabricacaoEquipamento(DateTime?[] listaDataDeFabricacao, int indiceDoEquipamento)
+        {
+            Console.Write("Digite a data de fabricação do Equipamento (formato: --/--/----):");
+            string dataDigitada = Console.ReadLine();
+
+            while (dataDigitada == "")
+            {
+                Console.WriteLine("Insira uma data de fabricação válida.");
+                Console.Write("Digite a data de fabricação do Equipamento (formato: --/--/----):");
+                dataDigitada = Console.ReadLine();
+            }
+            listaDataDeFabricacao[indiceDoEquipamento] = Convert.ToDateTime(dataDigitada);
+        }
+
+        static void VerificaEPreencheNumeroDeSerieEquipamento(string[] listaNumeroDeSerie, int indiceDoEquipamento)
+        {
+            Console.Write("Digite o número de série do Equipamento:");
+            string numeroDeSerieDigitado = Console.ReadLine();
+            while (numeroDeSerieDigitado == "")
+            {
+                Console.WriteLine("O número de série do Equipamento é obrigatório.");
+                Console.Write("Digite o numero de série do Equipamento:");
+                numeroDeSerieDigitado = Console.ReadLine();
+            }
+
+            bool numeroDeSerieJaExiste = VerificarSeNumeroDeSerieJaExiste(listaNumeroDeSerie, numeroDeSerieDigitado);
+
+            while (numeroDeSerieJaExiste)
+            {
+                Console.WriteLine("O número de Série já existe, por favor, digite outro número.");
+                Console.Write("Digite o numero de série do Equipamento:");
+                numeroDeSerieDigitado = Console.ReadLine();
+                numeroDeSerieJaExiste = VerificarSeNumeroDeSerieJaExiste(listaNumeroDeSerie, numeroDeSerieDigitado);
+            }
+            listaNumeroDeSerie[indiceDoEquipamento] = numeroDeSerieDigitado;
+        }
+
+        static void VerificaEPreenchePrecoEquipamento(decimal?[] listaPrecoDoEquipamento, int indiceDoEquipamento)
+        {
+            Console.Write("Digite o preço do Equipamento:");
+            listaPrecoDoEquipamento[indiceDoEquipamento] = Convert.ToDecimal(Console.ReadLine());
+            while (listaPrecoDoEquipamento[indiceDoEquipamento] == 0)
+            {
+                Console.WriteLine("O preço do equipamento não pode ser Zero.");
+                Console.Write("Digite o preço do Equipamento:");
+                listaPrecoDoEquipamento[indiceDoEquipamento] = Convert.ToDecimal(Console.ReadLine());
+            }
+            while (listaPrecoDoEquipamento[indiceDoEquipamento] < 0)
+            {
+                Console.WriteLine("O preço do equipamento não pode ser um número negativo.");
+                Console.Write("Digite o preço do Equipamento:");
+                listaPrecoDoEquipamento[indiceDoEquipamento] = Convert.ToDecimal(Console.ReadLine());
+            }
+        }
+
+        static void VerificaEPreencheNomeEquipamento(string[] listaNomeDoEquipamento, int indiceDoEquipamento)
         {
             Console.Write("Digite o nome do Equipamento:");
             string nomeDoEquipamento = Console.ReadLine();
@@ -378,29 +493,19 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 nomeDoEquipamento = Console.ReadLine();
             }
             listaNomeDoEquipamento[indiceDoEquipamento] = nomeDoEquipamento;
-            Console.WriteLine();
+        }
 
-            Console.Write("Digite o preço do Equipamento:");
-            precoDoEquipamento[indiceDoEquipamento] = Convert.ToDecimal(Console.ReadLine());
-            Console.WriteLine();
+        static bool VerificarSeNumeroDeSerieJaExiste(string[] listaNumeroDeSerie, string numeroDeSerieDigitado)
+        {
+            for (int i = 0; i < listaNumeroDeSerie.Length; i++)
+            {
+                if (listaNumeroDeSerie[i] == numeroDeSerieDigitado)
+                {
+                    return true;
+                }
+            }
 
-            Console.Write("Digite o numero de série do Equipamento:");
-            numeroDeSerie[indiceDoEquipamento] = Console.ReadLine();
-            Console.WriteLine();
-
-            Console.Write("Digite a data de fabricação do Equipamento (formato: --/--/----):");
-            dataDeFabricacao[indiceDoEquipamento] = Convert.ToDateTime(Console.ReadLine());
-            Console.WriteLine();
-
-            Console.Write("Digite o nome do fabricante do Equipamento:");
-            fabricante[indiceDoEquipamento] = Console.ReadLine();
-            Console.WriteLine();
-
-            indiceDoEquipamento++;
-            Console.WriteLine($"Equipamento {indiceDoEquipamento} Registrado");
-
-            return indiceDoEquipamento;
-
+            return false;
         }
     }
 }
