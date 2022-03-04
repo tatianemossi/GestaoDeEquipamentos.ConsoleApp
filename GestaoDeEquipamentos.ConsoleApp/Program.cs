@@ -193,16 +193,18 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static int CriarChamado(string[] listaTitulosChamados, string[] listaDescricaoChamados, string[] listaEquipamentoDoChamado, string[] listaNomeEquipamentos, DateTime?[] listaDataAberturaChamados, int indiceDoChamado)
         {
-            Console.WriteLine();
-            Console.Write("Digite o título do Chamado:");
-            string tituloDoChamado = Console.ReadLine();
-            listaTitulosChamados[indiceDoChamado] = tituloDoChamado;
-            Console.WriteLine();
+            bool jaExisteEquipamentoLista = VerificarSeExisteEquipamentoLista(listaNomeEquipamentos);
+            if (jaExisteEquipamentoLista == false)
+            {
+                Console.WriteLine("Não é possível criar um chamado, pois ainda não existem equipamentos na lista.");
+                return indiceDoChamado;
+            }
 
             Console.WriteLine();
-            Console.Write("Digite a descrição do Chamado:");
-            listaDescricaoChamados[indiceDoChamado] = Console.ReadLine();
+            VerificaEPreencheTituloDoChamado(listaTitulosChamados, indiceDoChamado);
+
             Console.WriteLine();
+            VerificaEPreencheDescricaoDoChamado(listaDescricaoChamados, indiceDoChamado);
 
             bool equipamentoEncontrado;
             BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
@@ -212,17 +214,72 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 Console.WriteLine("Nenhum equipamento com este nome foi encontrado.");
                 BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
             }
+
             Console.WriteLine();
 
             Console.WriteLine();
-            Console.Write("Digite a data de abertura do Chamado (formato: --/--/----):");
-            listaDataAberturaChamados[indiceDoChamado] = Convert.ToDateTime(Console.ReadLine());
-            Console.WriteLine();
-
+            VerificaEPreencheDataDeAberturaChamado(listaDataAberturaChamados, indiceDoChamado);
+            
             indiceDoChamado++;
             Console.WriteLine($"Chamado {indiceDoChamado} Registrado");
 
             return indiceDoChamado;
+        }
+
+        static void VerificaEPreencheDataDeAberturaChamado(DateTime?[] listaDataAberturaChamados, int indiceDoChamado)
+        {
+            Console.Write("Digite a data de Abertura do Chamado (formato: --/--/----):");
+            string dataDeAberturaDigitada = Console.ReadLine();
+
+            while (dataDeAberturaDigitada == "")
+            {
+                Console.WriteLine("Insira uma data de fabricação válida.");
+                Console.Write("Digite a data de fabricação do Equipamento (formato: --/--/----):");
+                dataDeAberturaDigitada = Console.ReadLine();
+            }
+            listaDataAberturaChamados[indiceDoChamado] = Convert.ToDateTime(dataDeAberturaDigitada);
+        }
+
+        static bool VerificarSeExisteEquipamentoLista(string[] listaNomeEquipamentos)
+        {
+            for (int i = 0; i < listaNomeEquipamentos.Length; i++)
+            {
+                if (listaNomeEquipamentos[i] != null)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static void VerificaEPreencheDescricaoDoChamado(string[] listaDescricaoChamados, int indiceDoChamado)
+        {
+            Console.Write("Digite a descrição do Chamado:");
+            string descricaoChamado = Console.ReadLine();
+
+            while (descricaoChamado == "")
+            {
+                Console.WriteLine("A descrição do Chamado é obrigatória.");
+                Console.Write("Digite a descrição do Chamado::");
+                descricaoChamado = Console.ReadLine();
+            }
+
+            listaDescricaoChamados[indiceDoChamado] = descricaoChamado;
+            Console.WriteLine();
+        }
+
+        static void VerificaEPreencheTituloDoChamado(string[] listaTitulosChamados, int indiceDoChamado)
+        {
+            Console.Write("Digite o título do Chamado:");
+            string tituloDoChamado = Console.ReadLine();
+            while (tituloDoChamado == "")
+            {
+                Console.WriteLine("O título do Chamado é obrigatório.");
+                Console.Write("Digite o título do Chamado:");
+                tituloDoChamado = Console.ReadLine();
+            }
+            listaTitulosChamados[indiceDoChamado] = tituloDoChamado;
+            Console.WriteLine();
         }
 
         static void BuscarEValidarNomeEquipamento(string[] listaEquipamentoDoChamado, string[] listaNomeEquipamentos, out bool equipamentoEncontrado, int indiceDoChamado)
@@ -270,23 +327,41 @@ namespace GestaoDeEquipamentos.ConsoleApp
             Console.WriteLine();
             Console.WriteLine("Digite o nome do equipamento que será excluído: ");
             string equipamentoParaExcluir = Console.ReadLine();
+            
+            var indiceDoEquipamento = BuscarIndiceEquipamento(listaNomeDeEquipamentos, equipamentoParaExcluir);
+            if (indiceDoEquipamento == null)
+            {
+                Console.WriteLine("Equipamento não encontrado.");
+                return;
+            }
 
-            for (int i = 0; i < listaNomeDeEquipamentos.Length; i++)
+            bool equipamentoEstaVinculadoChamado = VerificaSeEquipamentoVinculadoAoChamado(listaEquipamentosChamados, equipamentoParaExcluir);
+            if (equipamentoEstaVinculadoChamado)
+            {
+                Console.WriteLine("O equipamento não pode ser excluído, pois está vinculado a um chamado aberto.");
+                return;
+            }           
+            else
+            {
+                listaNomeDeEquipamentos[Convert.ToInt32(indiceDoEquipamento)] = null;
+                listaPrecoDeEquipamentos[Convert.ToInt32(indiceDoEquipamento)] = null;
+                listaNumeroDeSerieDeEquipamentos[Convert.ToInt32(indiceDoEquipamento)] = null;
+                listaDataDeFabricacaoDeEquipamentos[Convert.ToInt32(indiceDoEquipamento)] = null;
+                listaFabricanteDeEquipamentos[Convert.ToInt32(indiceDoEquipamento)] = null;
+            }           
+        }
+
+        static bool VerificaSeEquipamentoVinculadoAoChamado(string[] listaEquipamentosChamados, string equipamentoParaExcluir)
+        {
+            for (int i = 0; i < listaEquipamentosChamados.Length; i++)
             {
                 if (equipamentoParaExcluir == listaEquipamentosChamados[i])
                 {
                     Console.WriteLine("Este equipamento não pode ser excluído, pois possui um chamado aberto.");
-                }
-
-                else if (listaNomeDeEquipamentos[i] == equipamentoParaExcluir)
-                {
-                    listaNomeDeEquipamentos[i] = null;
-                    listaPrecoDeEquipamentos[i] = null;
-                    listaNumeroDeSerieDeEquipamentos[i] = null;
-                    listaDataDeFabricacaoDeEquipamentos[i] = null;
-                    listaFabricanteDeEquipamentos[i] = null;
+                    return true;
                 }
             }
+            return false;
         }
 
         static void VisualizarListaEquipamentos(string[] listaNomeDoEquipamento, string[] listaNumeroDeSerieDeEquipamentos, string[] listaFabricanteDeEquipamentos)
