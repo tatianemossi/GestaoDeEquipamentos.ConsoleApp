@@ -39,7 +39,8 @@ namespace GestaoDeEquipamentos.ConsoleApp
                     "Digite 4: Para visualizar o inventário de Equipamentos.\n" +
                     "Digite 5: Para gerenciar Chamados.\n" +
                     "Digite 6: Para gerenciar Solicitante.\n" +
-                    "Digite 7: Para encerrar");
+                    "Digite 7: Para verificar equipamento com mais problema.\n" +
+                    "Digite 8: Para encerrar");
 
                 menuDeOpcoes = Console.ReadLine();
 
@@ -75,11 +76,15 @@ namespace GestaoDeEquipamentos.ConsoleApp
                         break;
 
                     case "7":
+                        VerificarEquipamentoMaisProblema(listaEquipamentosChamados);
+                        break;
+
+                    case "8":
                         break;
                 }
 
-            } while (menuDeOpcoes != "7");
-        }
+            } while (menuDeOpcoes != "8");
+        }        
 
         #region Solicitantes
         static void GerenciarSolicitante(string[] listaNomeSolicitante, string[] listaEmailSolicitante, string[] listaTelefoneSolicitante, int indiceDoSolicitante)
@@ -214,8 +219,8 @@ namespace GestaoDeEquipamentos.ConsoleApp
             VerificaEPreencheTelefoneSolicitante(listaTelefoneSolicitante, indiceDoSolicitante);
 
             indiceDoSolicitante++;
-            Console.WriteLine($"Chamado {indiceDoSolicitante} Registrado");
             Console.Clear();
+            Console.WriteLine($"Solicitante {indiceDoSolicitante} Registrado");
 
             return indiceDoSolicitante;
         }
@@ -238,7 +243,6 @@ namespace GestaoDeEquipamentos.ConsoleApp
             }
 
             listaTelefoneSolicitante[indiceDoSolicitante] = telefoneDoSolicitante;
-            Console.Clear();
         }
 
         static void VerificaEPreencheEmailSolicitante(string[] listaEmailSolicitante, int indiceDoSolicitante)
@@ -252,7 +256,6 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 emailDigitado = Console.ReadLine();
             }
             listaEmailSolicitante[indiceDoSolicitante] = emailDigitado;
-            Console.Clear();
         }
 
         static void VerificaEPreencheNomeSolicitante(string[] listaNomeSolicitante, int indiceDoSolicitante)
@@ -266,7 +269,6 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 nomeDoSolicitante = Console.ReadLine();
             }
             listaNomeSolicitante[indiceDoSolicitante] = nomeDoSolicitante;
-            Console.Clear();
         }
 
         static int? BuscarIndiceSolicitante(string[] listaNomeSolicitante, string solicitanteAhSerAlterado)
@@ -301,7 +303,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
                 menuChamados = Console.ReadLine();
 
-                
+
                 switch (menuChamados)
                 {
                     case "1":
@@ -343,18 +345,41 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void VisualizarListaChamadosAgrupados(string[] listaTitulosChamados, string[] listaEquipamentoDoChamado, DateTime?[] listaDataAberturaChamados, string[] listaSolicitanteDoChamado, string[] listaStatusChamados)
         {
-            string[] listaStatusTemporaria = listaStatusChamados;
-            Array.Sort(listaStatusTemporaria);
+            string[] listaChamadosAbertos = new string[1000];
+            string[] listaChamadosFechados = new string[1000];
 
             for (int i = 0; i < listaTitulosChamados.Length; i++)
             {
                 if (listaTitulosChamados[i] != null)
                 {
-                    var quantidadeDiasChamadoAberto = (DateTime.Now.Date - listaDataAberturaChamados[i].Value.Date).TotalDays;
+                    string textoDoChamado = $"Chamado: {listaTitulosChamados[i]} - Equipamento: {listaEquipamentoDoChamado[i]} - Data de Abertura do Chamado: {listaDataAberturaChamados[i]} - Solicitante: {listaSolicitanteDoChamado[i]}";
 
-                    Console.WriteLine();
-                    Console.WriteLine($"Chamado: {listaTitulosChamados[i]} - Equipamento: {listaEquipamentoDoChamado[i]} - Data de Abertura do Chamado: {listaDataAberturaChamados[i]} - Dias Chamado em Aberto: {quantidadeDiasChamadoAberto} - Solicitante: {listaSolicitanteDoChamado[i]}");
-                    Console.WriteLine();
+                    if (listaStatusChamados[i] == AbertoConst)
+                    {
+                        listaChamadosAbertos[i] = textoDoChamado;
+                    }
+                    else
+                    {
+                        listaChamadosFechados[i] = textoDoChamado;
+                    }
+                }
+            }
+            Console.WriteLine("Chamados Abertos:");
+            for (int i = 0; i < listaChamadosAbertos.Length; i++)
+            {
+                if (listaChamadosAbertos[i] != null)
+                {
+                    Console.WriteLine(listaChamadosAbertos[i]);
+                }
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Chamados Fechados:");
+            for (int i = 0; i < listaChamadosFechados.Length; i++)
+            {
+                if (listaChamadosFechados[i] != null)
+                {
+                    Console.WriteLine(listaChamadosFechados[i]);
                 }
             }
         }
@@ -513,21 +538,19 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 return indiceDoChamado;
             }
 
-            Console.WriteLine();
             VerificaEPreencheTituloDoChamado(listaTitulosChamados, indiceDoChamado);
 
-            Console.WriteLine();
             VerificaEPreencheDescricaoDoChamado(listaDescricaoChamados, indiceDoChamado);
 
             bool equipamentoEncontrado;
             BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
             while (equipamentoEncontrado == false)
             {
-                Console.WriteLine();
                 Console.WriteLine("Nenhum equipamento com este nome foi encontrado.");
                 BuscarEValidarNomeEquipamento(listaEquipamentoDoChamado, listaNomeEquipamentos, out equipamentoEncontrado, indiceDoChamado);
             }
 
+            Console.WriteLine();
             bool solicitanteEncontrado;
             BuscarEValidarSolicitanteChamado(listaSolicitanteDoChamado, listaNomeSolicitante, out solicitanteEncontrado, indiceDoChamado);
             while (solicitanteEncontrado == false)
@@ -536,8 +559,6 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 Console.WriteLine("Nenhum solicitante com este nome foi encontrado.");
                 BuscarEValidarSolicitanteChamado(listaSolicitanteDoChamado, listaNomeSolicitante, out solicitanteEncontrado, indiceDoChamado);
             }
-
-            Console.WriteLine();
 
             Console.WriteLine();
             VerificaEPreencheDataDeAberturaChamado(listaDataAberturaChamados, indiceDoChamado);
@@ -565,7 +586,6 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void BuscarEValidarSolicitanteChamado(string[] listaSolicitanteDoChamado, string[] listaNomeSolicitante, out bool solicitanteEncontrado, int indiceDoChamado)
         {
-            Console.WriteLine();
             Console.Write("Digite o nome do Solicitante que será atribuído ao chamado:");
             string nomeSolicitanteChamado = Console.ReadLine();
             solicitanteEncontrado = false;
@@ -574,7 +594,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
             {
                 if (listaNomeSolicitante[i] == nomeSolicitanteChamado)
                 {
-                    listaNomeSolicitante[indiceDoChamado] = nomeSolicitanteChamado;
+                    listaSolicitanteDoChamado[indiceDoChamado] = nomeSolicitanteChamado;
                     solicitanteEncontrado = true;
                     break;
                 }
@@ -641,7 +661,6 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         static void BuscarEValidarNomeEquipamento(string[] listaEquipamentoDoChamado, string[] listaNomeEquipamentos, out bool equipamentoEncontrado, int indiceDoChamado)
         {
-            Console.WriteLine();
             Console.Write("Digite o nome do Equipamento que será atribuído ao chamado:");
             string nomeEquipamentoChamado = Console.ReadLine();
             equipamentoEncontrado = false;
@@ -682,6 +701,76 @@ namespace GestaoDeEquipamentos.ConsoleApp
         #endregion
 
         #region Equipamentos
+        static void VerificarEquipamentoMaisProblema(string[] listaEquipamentosChamados)
+        {
+            string[] listaEquipamentosComProblema = new string[1000];
+            
+            for (int i = 0; i < listaEquipamentosChamados.Length; i++)
+            {
+                var equipamentoComProblema = listaEquipamentosChamados[i];
+                if (equipamentoComProblema != null)
+                {
+                    var indiceEquipamentoComProblema = 0;
+                    var equipamentoJaExiste = VerificaSeEquipamentoComProblemaJaExiste(listaEquipamentosComProblema, equipamentoComProblema, ref indiceEquipamentoComProblema);
+                    if (equipamentoJaExiste)
+                    {
+                        int qtdRepeticao = Convert.ToInt32(listaEquipamentosComProblema[indiceEquipamentoComProblema].Split(',')[0]);
+                        qtdRepeticao++;
+                        listaEquipamentosComProblema[indiceEquipamentoComProblema] = $"{qtdRepeticao},{equipamentoComProblema}";
+                    }
+                    else
+                    {
+                        indiceEquipamentoComProblema = BuscarUltimoIndiceEquipamentoComProblema(listaEquipamentosComProblema);
+                        listaEquipamentosComProblema[indiceEquipamentoComProblema] = $"1,{equipamentoComProblema}";
+                    }
+                }                
+            }
+
+            Array.Sort(listaEquipamentosComProblema);
+            Array.Reverse(listaEquipamentosComProblema);
+
+            for (int i = 0; i < listaEquipamentosComProblema.Length; i++)
+            {
+                if (listaEquipamentosComProblema[i] != null)
+                {
+                    var quantidade = Convert.ToInt32(listaEquipamentosComProblema[i].Split(",")[0]);
+                    var equipamento = listaEquipamentosComProblema[i].Split(",")[1];                    
+                    Console.WriteLine($"Foram abertos {quantidade} chamados para o equipamento {equipamento}.");
+                }
+            }
+        }
+
+        static int BuscarUltimoIndiceEquipamentoComProblema(string[] listaEquipamentosComProblema)
+        {
+            for (int j = 0; j < listaEquipamentosComProblema.Length; j++)
+            {
+                if (listaEquipamentosComProblema[j] == null)
+                {
+                    return j;
+                }
+            }
+
+            return 0;
+        }
+
+        static bool VerificaSeEquipamentoComProblemaJaExiste(string[] listaEquipamentosComProblema, string equipamentoComProblema, ref int indiceEquipamentoComProblema)
+        {
+            for (int j = 0; j < listaEquipamentosComProblema.Length; j++)
+            {
+                if (listaEquipamentosComProblema[j] == null)
+                {
+                    return false;
+                }
+                if (listaEquipamentosComProblema[j].EndsWith(equipamentoComProblema))
+                {
+                    indiceEquipamentoComProblema = j;
+                    return true;                    
+                }                
+            }
+
+            return false;
+        }
+
         static void ExcluirEquipamento(string[] listaNomeDeEquipamentos, decimal?[] listaPrecoDeEquipamentos, string[] listaNumeroDeSerieDeEquipamentos,
             DateTime?[] listaDataDeFabricacaoDeEquipamentos, string[] listaFabricanteDeEquipamentos, string[] listaEquipamentosChamados)
         {
@@ -859,8 +948,8 @@ namespace GestaoDeEquipamentos.ConsoleApp
             Console.WriteLine();
 
             indiceDoEquipamento++;
-            Console.WriteLine($"Equipamento {indiceDoEquipamento} Registrado");
             Console.Clear();
+            Console.WriteLine($"Equipamento {indiceDoEquipamento} Registrado");
 
             return indiceDoEquipamento;
         }
