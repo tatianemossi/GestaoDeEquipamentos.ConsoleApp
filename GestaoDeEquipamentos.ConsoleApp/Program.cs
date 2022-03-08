@@ -59,7 +59,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
                     case "3":
                         VisualizarListaEquipamentos(listaNomeEquipamentos, listaNumeroDeSerieEquipamentos, listaFabricanteEquipamentos);
                         ExcluirEquipamento(listaNomeEquipamentos, listaPrecoEquipamentos, listaNumeroDeSerieEquipamentos,
-                            listaDataDeFabricacaoEquipamentos, listaFabricanteEquipamentos, listaEquipamentosChamados);
+                            listaDataDeFabricacaoEquipamentos, listaFabricanteEquipamentos, listaEquipamentosChamados, listaStatusChamados);
                         break;
 
                     case "4":
@@ -772,7 +772,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
         }
 
         static void ExcluirEquipamento(string[] listaNomeDeEquipamentos, decimal?[] listaPrecoDeEquipamentos, string[] listaNumeroDeSerieDeEquipamentos,
-            DateTime?[] listaDataDeFabricacaoDeEquipamentos, string[] listaFabricanteDeEquipamentos, string[] listaEquipamentosChamados)
+            DateTime?[] listaDataDeFabricacaoDeEquipamentos, string[] listaFabricanteDeEquipamentos, string[] listaEquipamentosChamados, string[] listaStatusChamados)
         {
             Console.WriteLine();
             Console.WriteLine("Digite o nome do equipamento que será excluído: ");
@@ -785,7 +785,7 @@ namespace GestaoDeEquipamentos.ConsoleApp
                 return;
             }
 
-            bool equipamentoEstaVinculadoChamado = VerificaSeEquipamentoVinculadoAoChamado(listaEquipamentosChamados, equipamentoParaExcluir);
+            bool equipamentoEstaVinculadoChamado = VerificaSeEquipamentoVinculadoAoChamado(listaEquipamentosChamados, equipamentoParaExcluir, listaStatusChamados);
             if (equipamentoEstaVinculadoChamado)
             {
                 Console.WriteLine("O equipamento não pode ser excluído, pois está vinculado a um chamado aberto.");
@@ -804,11 +804,11 @@ namespace GestaoDeEquipamentos.ConsoleApp
 
         }
 
-        static bool VerificaSeEquipamentoVinculadoAoChamado(string[] listaEquipamentosChamados, string equipamentoParaExcluir)
+        static bool VerificaSeEquipamentoVinculadoAoChamado(string[] listaEquipamentosChamados, string equipamentoParaExcluir, string [] listaStatusChamados)
         {
             for (int i = 0; i < listaEquipamentosChamados.Length; i++)
             {
-                if (equipamentoParaExcluir == listaEquipamentosChamados[i])
+                if (equipamentoParaExcluir == listaEquipamentosChamados[i] && listaStatusChamados[i] == AbertoConst)
                 {
                     Console.WriteLine("Este equipamento não pode ser excluído, pois possui um chamado aberto.");
                     return true;
